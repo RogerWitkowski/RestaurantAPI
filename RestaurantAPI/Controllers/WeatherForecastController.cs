@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using RestaurantAPI.Models;
+using RestaurantAPI.Repository.IRepository;
 
 namespace RestaurantAPI.Controllers
 {
@@ -6,28 +8,33 @@ namespace RestaurantAPI.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IWeatherForecastRepository _forecast;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IWeatherForecastRepository forecast)
         {
             _logger = logger;
+            _forecast = forecast;
         }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var result = _forecast.Get(15, -35, 50);
+            return result;
+        }
+
+        [HttpPost("generate")]
+        public ActionResult<IEnumerable<WeatherForecast>> Generate([FromQuery] int count,
+            [FromBody] TemperatureRequest request)
+        {
+            if (count < 0 || request.MaxTemperature < request.MinTemperature)
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                return BadRequest();
+            }
+
+            var result = _forecast.Get(count, request.MinTemperature, request.MinTemperature);
+            return Ok(result);
         }
     }
 }
