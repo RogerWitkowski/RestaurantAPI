@@ -43,7 +43,7 @@ namespace Restaurant.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("Restaurant.Models.Models.Dish", b =>
@@ -72,7 +72,7 @@ namespace Restaurant.DataAccess.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("Dishes");
+                    b.ToTable("Dishes", (string)null);
                 });
 
             modelBuilder.Entity("Restaurant.Models.Models.Restaurant", b =>
@@ -116,7 +116,7 @@ namespace Restaurant.DataAccess.Migrations
                     b.HasIndex("AddressId")
                         .IsUnique();
 
-                    b.ToTable("Restaurants");
+                    b.ToTable("Restaurants", (string)null);
                 });
 
             modelBuilder.Entity("Restaurant.Models.Models.Dish", b =>
