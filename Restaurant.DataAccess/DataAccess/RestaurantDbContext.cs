@@ -16,17 +16,7 @@ namespace Restaurant.DataAccess.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Models.Models.Restaurant>(entityBuilder =>
-            {
-                entityBuilder.Property(n => n.Name).IsRequired().HasMaxLength(50);
-                entityBuilder.Property(d => d.Description).IsRequired().HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<Dish>(entityBuilder =>
-            {
-                entityBuilder.Property(n => n.Name).IsRequired();
-                entityBuilder.Property(p => p.Price).HasColumnType("decimal(18,2)");
-            });
+            modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
         }
     }
 }

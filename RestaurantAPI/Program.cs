@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Restaurant.DataAccess.DataAccess;
 using Restaurant.DataAccess.Seeder;
-using RestaurantAPI.Repository;
-using RestaurantAPI.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +13,6 @@ builder.Services.AddScoped<DataGenerator>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>();
 
 var app = builder.Build();
 

@@ -51,11 +51,11 @@ namespace Restaurant.DataAccess.Seeder
                 .RuleFor(a => a.Address, fa => addressGenerator.Generate())
                 .RuleFor(dishes => dishes.Dishes, fdishes => dishGenerator.Generate(50));
 
-            var restaurant = restaurantGenerator.Generate(100);
-            _dbContext.Restaurants.AddRange(restaurant);
+            var restaurants = restaurantGenerator.Generate(100);
+            _dbContext.Restaurants.AddRange(restaurants);
             _dbContext.SaveChanges();
 
-            return restaurant;
+            return restaurants;
         }
     }
 }
