@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Restaurant.DataAccess.DataAccess;
 using Restaurant.DataAccess.Seeder;
+using RestaurantAPI.Repository;
+using RestaurantAPI.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +13,10 @@ builder.Services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServ
     builder.Configuration.GetConnectionString("DatabaseConnection")));
 
 builder.Services.AddScoped<DataGenerator>();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 
 var app = builder.Build();
 

@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Restaurant.DataAccess\Restaurant.DataAccess.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repository\" />
-  </ItemGroup>
-
 </Project>
