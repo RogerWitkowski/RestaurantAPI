@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Restaurant.Models.Models;
+using Restaurant.Models.Models.Configuration;
 
 namespace Restaurant.DataAccess.DataAccess
 {

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
+using Restaurant.Models.Dto;
 using RestaurantAPI.Repository.IRepository;
 
 namespace RestaurantAPI.Controllers
@@ -16,7 +17,7 @@ namespace RestaurantAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Restaurant.Models.Models.Restaurant>>> GetAll()
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
         {
             var restaurants = await _restaurantRepository.GetAll();
             return Ok(restaurants);
@@ -25,10 +26,11 @@ namespace RestaurantAPI.Controllers
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Restaurant.Models.Models.Restaurant>> GetById([FromRoute] int id)
+        public async Task<ActionResult<RestaurantDto>> GetById([FromRoute] int id)
         {
             var restaurant = await _restaurantRepository.GetById(id);
-            return restaurant;
+
+            return Ok(restaurant);
         }
     }
 }

@@ -11,8 +11,8 @@ using Restaurant.DataAccess.DataAccess;
 namespace Restaurant.DataAccess.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20221203164709_cityStreetPropIsRequiredAndMaxLength50")]
-    partial class cityStreetPropIsRequiredAndMaxLength50
+    [Migration("20221204110718_applyConfigForModels")]
+    partial class applyConfigForModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,10 @@ namespace Restaurant.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostalCode")
                         .IsRequired()

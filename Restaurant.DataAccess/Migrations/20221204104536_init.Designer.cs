@@ -11,8 +11,8 @@ using Restaurant.DataAccess.DataAccess;
 namespace Restaurant.DataAccess.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20221203200642_extractConfigurationToNewDir")]
-    partial class extractConfigurationToNewDir
+    [Migration("20221204104536_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,6 +33,10 @@ namespace Restaurant.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

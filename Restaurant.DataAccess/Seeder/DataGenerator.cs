@@ -32,6 +32,7 @@ namespace Restaurant.DataAccess.Seeder
         private IEnumerable<Models.Models.Restaurant> GetRestaurants()
         {
             var addressGenerator = new Faker<Address>()
+                .RuleFor(a => a.Country, f => f.Address.Country())
                 .RuleFor(c => c.City, fc => fc.Address.City())
                 .RuleFor(s => s.Street, fs => fs.Address.StreetName())
                 .RuleFor(p => p.PostalCode, fp => fp.Address.ZipCode());
