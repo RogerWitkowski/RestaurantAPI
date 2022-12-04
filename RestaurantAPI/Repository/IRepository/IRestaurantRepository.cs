@@ -5,8 +5,12 @@ namespace RestaurantAPI.Repository.IRepository
 {
     public interface IRestaurantRepository
     {
-        public Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll();
+        public Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync();
 
-        public Task<ActionResult<RestaurantDto>> GetById(int id);
+        public Task<ActionResult<RestaurantDto>> GetByIdAsync(int id);
+
+        public Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto);
+
+        public Task<bool> DeleteRestaurantAsync(int restaurantId);
     }
 }

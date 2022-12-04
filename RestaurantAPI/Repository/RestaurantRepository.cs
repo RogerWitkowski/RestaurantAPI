@@ -1,7 +1,7 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
-using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Restaurant.DataAccess.DataAccess;
@@ -21,7 +21,30 @@ namespace RestaurantAPI.Repository
             _mapper = mapper;
         }
 
-        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
+        public async Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto)
+        {
+            var restaurant = _mapper.Map<Restaurant.Models.Models.Restaurant>(createRestaurantDto);
+
+            await _dbContext.Restaurants.AddAsync(restaurant);
+            await _dbContext.SaveChangesAsync();
+
+            return new CreatedResult($"/api/restaurant/{restaurant.Id}", "Created successfully!");
+        }
+
+        public async Task<bool> DeleteRestaurantAsync(int restaurantId)
+        {
+            var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
+            if (restaurant != null)
+            {
+                _dbContext.Restaurants.Remove(restaurant);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync()
         {
             var restaurants = await _dbContext
                 .Restaurants
@@ -34,7 +57,7 @@ namespace RestaurantAPI.Repository
             return restaurantsDto;
         }
 
-        public async Task<ActionResult<RestaurantDto>> GetById(int id)
+        public async Task<ActionResult<RestaurantDto>> GetByIdAsync(int id)
         {
             var restaurant = await _dbContext
                 .Restaurants
@@ -42,10 +65,10 @@ namespace RestaurantAPI.Repository
                 .Include(d => d.Dishes)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
-            if (restaurant is null)
-            {
-                return new NotFoundObjectResult("Something went wrong. 404 Not Found");
-            }
+            //if (restaurant is null)
+            //{
+            //    return new NotFoundObjectResult("Something went wrong. 404 Not Found");
+            //}
 
             var restaurantDto = _mapper.Map<RestaurantDto>(restaurant);
             return restaurantDto;

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Restaurant.Models.Dto;
 using RestaurantAPI.Repository.IRepository;
 
@@ -19,7 +20,7 @@ namespace RestaurantAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
         {
-            var restaurants = await _restaurantRepository.GetAll();
+            var restaurants = await _restaurantRepository.GetAllAsync();
             return Ok(restaurants);
         }
 
@@ -28,9 +29,38 @@ namespace RestaurantAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<RestaurantDto>> GetById([FromRoute] int id)
         {
-            var restaurant = await _restaurantRepository.GetById(id);
+            var restaurant = await _restaurantRepository.GetByIdAsync(id);
 
-            return Ok(restaurant);
+            if (restaurant.Result != null || restaurant.Value != null)
+            {
+                return Ok(restaurant);
+            }
+            return NotFound("Something went wrong. 404 Not Found!");
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> CreateRestaurant([FromBody] CreateRestaurantDto createRestaurantDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var restaurant = await _restaurantRepository.CreateRestaurantAsync(createRestaurantDto);
+            return restaurant;
+        }
+
+        [HttpDelete("{restaurantId:int}")]
+        public async Task<ActionResult> DeleteRestaurant([FromRoute] int restaurantId)
+        {
+            var isDeleted = await _restaurantRepository.DeleteRestaurantAsync(restaurantId);
+            if (isDeleted)
+            {
+                return Ok("Deleted!");
+            }
+
+            return NotFound("Something went wrong. 404 Not Found!");
         }
     }
 }
