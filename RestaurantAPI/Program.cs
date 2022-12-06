@@ -6,6 +6,7 @@ using Newtonsoft.Json.Serialization;
 using NLog.Web;
 using Restaurant.DataAccess.DataAccess;
 using Restaurant.DataAccess.Seeder;
+using RestaurantAPI.Middleware;
 using RestaurantAPI.Repository;
 using RestaurantAPI.Repository.IRepository;
 
@@ -24,6 +25,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
 
 var app = builder.Build();
 
@@ -40,9 +42,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+//app.UseAuthorization();
 
 app.MapControllers();
 

@@ -36,7 +36,7 @@ namespace RestaurantAPI.Repository
 
         public async Task<bool> DeleteRestaurantAsync(int restaurantId)
         {
-            _logger.LogWarning($"Restaurant with id: {restaurantId} DELETE action invoked");
+            _logger.LogError($"Restaurant with id: {restaurantId} DELETE action invoked");
             var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
             if (restaurant != null)
             {
