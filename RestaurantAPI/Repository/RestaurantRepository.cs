@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Restaurant.DataAccess.DataAccess;
 using Restaurant.Models.Dto;
+using Restaurant.Models.Models;
 using RestaurantAPI.Repository.IRepository;
 
 namespace RestaurantAPI.Repository
@@ -14,11 +15,13 @@ namespace RestaurantAPI.Repository
     {
         private readonly RestaurantDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<RestaurantRepository> _logger;
 
-        public RestaurantRepository(RestaurantDbContext dbContext, IMapper mapper)
+        public RestaurantRepository(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantRepository> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto)
@@ -33,6 +36,7 @@ namespace RestaurantAPI.Repository
 
         public async Task<bool> DeleteRestaurantAsync(int restaurantId)
         {
+            _logger.LogWarning($"Restaurant with id: {restaurantId} DELETE action invoked");
             var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
             if (restaurant != null)
             {
@@ -72,6 +76,33 @@ namespace RestaurantAPI.Repository
 
             var restaurantDto = _mapper.Map<RestaurantDto>(restaurant);
             return restaurantDto;
+        }
+
+        public async Task<bool> UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto)
+        {
+            var restaurant = await _dbContext
+                .Restaurants
+                .Include(a => a.Address)
+                .FirstOrDefaultAsync(r => r.Id == restaurantId);
+
+            if (restaurant is null)
+            {
+                return false;
+            }
+
+            restaurant.Name = restaurantDto.Name;
+            restaurant.Description = restaurantDto.Description;
+            restaurant.Category = restaurantDto.Category;
+            restaurant.HasDelivery = restaurantDto.HasDelivery;
+            restaurant.ContactEmail = restaurantDto.ContactEmail;
+            restaurant.ContactNumber = restaurantDto.ContactNumber;
+            restaurant.Address.Country = restaurantDto.Country;
+            restaurant.Address.City = restaurantDto.City;
+            restaurant.Address.Street = restaurantDto.Street;
+            restaurant.Address.PostalCode = restaurantDto.PostalCode;
+
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

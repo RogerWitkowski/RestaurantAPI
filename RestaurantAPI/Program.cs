@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
+using NLog.Web;
 using Restaurant.DataAccess.DataAccess;
 using Restaurant.DataAccess.Seeder;
 using RestaurantAPI.Repository;
@@ -11,6 +12,8 @@ using RestaurantAPI.Repository.IRepository;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
 builder.Services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DatabaseConnection")));

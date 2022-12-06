@@ -62,5 +62,22 @@ namespace RestaurantAPI.Controllers
 
             return NotFound("Something went wrong. 404 Not Found!");
         }
+
+        [HttpPut("{restaurantId:int}")]
+        public async Task<ActionResult> UpdateRestaurant([FromBody] UpdateRestaurantDto restaurantDto, [FromRoute] int restaurantId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var isUpdatedRestaurant = await _restaurantRepository.UpdateRestaurantAsync(restaurantId, restaurantDto);
+            if (!isUpdatedRestaurant)
+            {
+                return NotFound("Something went wrong. 404 Not Found!");
+            }
+
+            return Ok("Updated!");
+        }
     }
 }
