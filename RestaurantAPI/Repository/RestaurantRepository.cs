@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Restaurant.DataAccess.DataAccess;
 using Restaurant.Models.Dto;
 using Restaurant.Models.Models;
+using RestaurantAPI.Exceptions;
 using RestaurantAPI.Repository.IRepository;
 
 namespace RestaurantAPI.Repository
@@ -24,6 +25,7 @@ namespace RestaurantAPI.Repository
             _logger = logger;
         }
 
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto)
         {
             var restaurant = _mapper.Map<Restaurant.Models.Models.Restaurant>(createRestaurantDto);
@@ -34,18 +36,17 @@ namespace RestaurantAPI.Repository
             return new CreatedResult($"/api/restaurant/{restaurant.Id}", "Created successfully!");
         }
 
-        public async Task<bool> DeleteRestaurantAsync(int restaurantId)
+        [ValidateAntiForgeryToken]
+        public async Task DeleteRestaurantAsync(int restaurantId)
         {
             _logger.LogError($"Restaurant with id: {restaurantId} DELETE action invoked");
             var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
-            if (restaurant != null)
+            if (restaurant is null)
             {
-                _dbContext.Restaurants.Remove(restaurant);
-                await _dbContext.SaveChangesAsync();
-                return true;
+                throw new NotFoundException("Restaurant not found!");
             }
-
-            return false;
+            _dbContext.Restaurants.Remove(restaurant);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync()
@@ -61,6 +62,7 @@ namespace RestaurantAPI.Repository
             return restaurantsDto;
         }
 
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult<RestaurantDto>> GetByIdAsync(int id)
         {
             var restaurant = await _dbContext
@@ -69,16 +71,16 @@ namespace RestaurantAPI.Repository
                 .Include(d => d.Dishes)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
-            //if (restaurant is null)
-            //{
-            //    return new NotFoundObjectResult("Something went wrong. 404 Not Found");
-            //}
-
+            if (restaurant is null)
+            {
+                throw new NotFoundException("Restaurant not found!");
+            }
             var restaurantDto = _mapper.Map<RestaurantDto>(restaurant);
             return restaurantDto;
         }
 
-        public async Task<bool> UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto)
+        [ValidateAntiForgeryToken]
+        public async Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto)
         {
             var restaurant = await _dbContext
                 .Restaurants
@@ -87,7 +89,7 @@ namespace RestaurantAPI.Repository
 
             if (restaurant is null)
             {
-                return false;
+                throw new NotFoundException("Restaurant not found!");
             }
 
             restaurant.Name = restaurantDto.Name;
@@ -102,7 +104,6 @@ namespace RestaurantAPI.Repository
             restaurant.Address.PostalCode = restaurantDto.PostalCode;
 
             await _dbContext.SaveChangesAsync();
-            return true;
         }
     }
 }

@@ -38,12 +38,16 @@ seeder.SeedDb();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
+
+app.UseSwagger();
+app.UseSwaggerUI(opt =>
+{
+    opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant Api");
+});
 
 app.UseRouting();
 

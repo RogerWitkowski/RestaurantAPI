@@ -31,11 +31,7 @@ namespace RestaurantAPI.Controllers
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(id);
 
-            if (restaurant.Result != null || restaurant.Value != null)
-            {
-                return Ok(restaurant);
-            }
-            return NotFound("Something went wrong. 404 Not Found!");
+            return Ok(restaurant);
         }
 
         [HttpPost]
@@ -43,10 +39,6 @@ namespace RestaurantAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> CreateRestaurant([FromBody] CreateRestaurantDto createRestaurantDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             var restaurant = await _restaurantRepository.CreateRestaurantAsync(createRestaurantDto);
             return restaurant;
         }
@@ -54,28 +46,14 @@ namespace RestaurantAPI.Controllers
         [HttpDelete("{restaurantId:int}")]
         public async Task<ActionResult> DeleteRestaurant([FromRoute] int restaurantId)
         {
-            var isDeleted = await _restaurantRepository.DeleteRestaurantAsync(restaurantId);
-            if (isDeleted)
-            {
-                return Ok("Deleted!");
-            }
-
-            return NotFound("Something went wrong. 404 Not Found!");
+            await _restaurantRepository.DeleteRestaurantAsync(restaurantId);
+            return Ok("Deleted!");
         }
 
         [HttpPut("{restaurantId:int}")]
         public async Task<ActionResult> UpdateRestaurant([FromBody] UpdateRestaurantDto restaurantDto, [FromRoute] int restaurantId)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var isUpdatedRestaurant = await _restaurantRepository.UpdateRestaurantAsync(restaurantId, restaurantDto);
-            if (!isUpdatedRestaurant)
-            {
-                return NotFound("Something went wrong. 404 Not Found!");
-            }
+            await _restaurantRepository.UpdateRestaurantAsync(restaurantId, restaurantDto);
 
             return Ok("Updated!");
         }

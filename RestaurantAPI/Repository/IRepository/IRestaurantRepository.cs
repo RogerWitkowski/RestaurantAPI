@@ -11,8 +11,8 @@ namespace RestaurantAPI.Repository.IRepository
 
         public Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto);
 
-        public Task<bool> DeleteRestaurantAsync(int restaurantId);
+        public Task DeleteRestaurantAsync(int restaurantId);
 
-        public Task<bool> UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto);
+        public Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto);
     }
 }
