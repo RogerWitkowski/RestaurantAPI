@@ -13,7 +13,8 @@ namespace Restaurant.Models.Models.Configuration
     {
         public void Configure(EntityTypeBuilder<Dish> enityTypeBuilder)
         {
-            enityTypeBuilder.Property(n => n.Name).IsRequired();
+            enityTypeBuilder.Property(n => n.Name).HasMaxLength(50).IsRequired();
+            enityTypeBuilder.Property(d => d.Description).HasMaxLength(150);
             enityTypeBuilder.Property(p => p.Price).HasColumnType("decimal(18,2)");
         }
     }
