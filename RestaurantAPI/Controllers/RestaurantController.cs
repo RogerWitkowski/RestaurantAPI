@@ -21,7 +21,7 @@ namespace RestaurantAPI.Controllers
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
         {
             var restaurants = await _restaurantRepository.GetAllAsync();
-            return Ok(restaurants);
+            return Ok(restaurants.Value);
         }
 
         [HttpGet("{id:int}")]
@@ -31,7 +31,7 @@ namespace RestaurantAPI.Controllers
         {
             var restaurant = await _restaurantRepository.GetByIdAsync(id);
 
-            return Ok(restaurant);
+            return Ok(restaurant.Value);
         }
 
         [HttpPost]

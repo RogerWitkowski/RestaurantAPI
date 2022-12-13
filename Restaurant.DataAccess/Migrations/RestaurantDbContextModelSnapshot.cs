@@ -49,7 +49,7 @@ namespace Restaurant.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("Restaurant.Models.Models.Dish", b =>
@@ -62,11 +62,13 @@ namespace Restaurant.DataAccess.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -78,7 +80,7 @@ namespace Restaurant.DataAccess.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("Dishes", (string)null);
+                    b.ToTable("Dishes");
                 });
 
             modelBuilder.Entity("Restaurant.Models.Models.Restaurant", b =>
@@ -122,7 +124,7 @@ namespace Restaurant.DataAccess.Migrations
                     b.HasIndex("AddressId")
                         .IsUnique();
 
-                    b.ToTable("Restaurants", (string)null);
+                    b.ToTable("Restaurants");
                 });
 
             modelBuilder.Entity("Restaurant.Models.Models.Dish", b =>

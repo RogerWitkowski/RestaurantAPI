@@ -17,12 +17,14 @@ namespace RestaurantAPI.Repository
         private readonly RestaurantDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ILogger<RestaurantRepository> _logger;
+        private readonly IExtensionRepository _extensionRepository;
 
         public RestaurantRepository(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantRepository> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
+            _extensionRepository = new ExtensionRepository(dbContext);
         }
 
         [ValidateAntiForgeryToken]
@@ -40,22 +42,15 @@ namespace RestaurantAPI.Repository
         public async Task DeleteRestaurantAsync(int restaurantId)
         {
             _logger.LogError($"Restaurant with id: {restaurantId} DELETE action invoked");
-            var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
-            if (restaurant is null)
-            {
-                throw new NotFoundException("Restaurant not found!");
-            }
+            var restaurant = await _extensionRepository.GetRestaurantByIdAsync(restaurantId);
+
             _dbContext.Restaurants.Remove(restaurant);
             await _dbContext.SaveChangesAsync();
         }
 
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync()
         {
-            var restaurants = await _dbContext
-                .Restaurants
-                .Include(a => a.Address)
-                .Include(d => d.Dishes)
-                .ToListAsync();
+            var restaurants = await _extensionRepository.GetAllRestaurantsAsync();
 
             var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants);
 
@@ -63,18 +58,9 @@ namespace RestaurantAPI.Repository
         }
 
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult<RestaurantDto>> GetByIdAsync(int id)
+        public async Task<ActionResult<RestaurantDto>> GetByIdAsync(int restaurantId)
         {
-            var restaurant = await _dbContext
-                .Restaurants
-                .Include(a => a.Address)
-                .Include(d => d.Dishes)
-                .FirstOrDefaultAsync(i => i.Id == id);
-
-            if (restaurant is null)
-            {
-                throw new NotFoundException("Restaurant not found!");
-            }
+            var restaurant = await _extensionRepository.GetRestaurantWithAddressAndDishesByIdAsync(restaurantId);
             var restaurantDto = _mapper.Map<RestaurantDto>(restaurant);
             return restaurantDto;
         }
@@ -82,15 +68,7 @@ namespace RestaurantAPI.Repository
         [ValidateAntiForgeryToken]
         public async Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto)
         {
-            var restaurant = await _dbContext
-                .Restaurants
-                .Include(a => a.Address)
-                .FirstOrDefaultAsync(r => r.Id == restaurantId);
-
-            if (restaurant is null)
-            {
-                throw new NotFoundException("Restaurant not found!");
-            }
+            var restaurant = await _extensionRepository.GetRestaurantWithAddressByIdAsync(restaurantId);
 
             restaurant.Name = restaurantDto.Name;
             restaurant.Description = restaurantDto.Description;

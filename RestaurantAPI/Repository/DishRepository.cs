@@ -13,20 +13,19 @@ namespace RestaurantAPI.Repository
     {
         private readonly RestaurantDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IExtensionRepository _extensionRepository;
 
         public DishRepository(RestaurantDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _extensionRepository = new ExtensionRepository(dbContext);
         }
 
+        [ValidateAntiForgeryToken]
         public async Task<int> CreateDishAsync(int restaurantId, CreateDishDto dishDto)
         {
-            var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
-            if (restaurant is null)
-            {
-                throw new NotFoundException("Restaurant not found!");
-            }
+            await _extensionRepository.GetRestaurantByIdAsync(restaurantId);
 
             var dishEntity = _mapper.Map<Dish>(dishDto);
 
@@ -37,19 +36,36 @@ namespace RestaurantAPI.Repository
             return dishEntity.Id;
         }
 
+        public async Task<ActionResult<List<DishDto>>> GetAllDishFromRestaurantAsync(int restaurantId)
+        {
+            var restaurant = await _extensionRepository.GetRestaurantWithDishesByIdAsync(restaurantId);
+
+            var dishesDto = _mapper.Map<List<DishDto>>(restaurant.Value.Dishes);
+            return dishesDto;
+        }
+
+        public async Task RemoveAllDishesFromRestaurantAsync(int restaurantId)
+        {
+            var restaurant = await _extensionRepository.GetRestaurantWithDishesByIdAsync(restaurantId);
+            _dbContext.RemoveRange(restaurant.Value.Dishes);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task RemoveDishFromRestaurantByDishIdAsync(int restaurantId, int dishId)
+        {
+            await _extensionRepository.GetRestaurantByIdAsync(restaurantId);
+
+            var dish = await _extensionRepository.GetDishByIdFromRestaurantAsync(restaurantId, dishId);
+
+            _dbContext.RemoveRange(dish);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<DishDto> GetDishFromRestaurantByIdAsync(int restaurantId, int dishId)
         {
-            var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
-            if (restaurant is null)
-            {
-                throw new NotFoundException("Restaurant not found!");
-            }
+            await _extensionRepository.GetRestaurantByIdAsync(restaurantId);
 
-            var dish = await _dbContext.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
-            if (dish is null || dish.RestaurantId != restaurantId)
-            {
-                throw new NotFoundException("Dish not found!");
-            }
+            var dish = await _extensionRepository.GetDishByIdFromRestaurantAsync(restaurantId, dishId);
 
             var dishDto = _mapper.Map<DishDto>(dish);
             return dishDto;

@@ -7,7 +7,7 @@ namespace RestaurantAPI.Repository.IRepository
     {
         public Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync();
 
-        public Task<ActionResult<RestaurantDto>> GetByIdAsync(int id);
+        public Task<ActionResult<RestaurantDto>> GetByIdAsync(int restaurantId);
 
         public Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto);
 

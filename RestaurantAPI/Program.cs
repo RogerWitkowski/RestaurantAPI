@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json.Serialization;
@@ -21,6 +22,10 @@ builder.Host.UseNLog();
 builder.Services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DatabaseConnection")));
 
+//builder.Services.AddMvc(opt =>
+//{
+//    opt.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+//});
 builder.Services.AddScoped<DataGenerator>();
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();

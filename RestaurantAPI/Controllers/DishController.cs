@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Restaurant.Models.Dto;
+using RestaurantAPI.Exceptions;
 using RestaurantAPI.Repository.IRepository;
 
 namespace RestaurantAPI.Controllers
 {
-    [Route("api/restaurant/{restaurantId}/dish")]
+    [Route("api/restaurant/{restaurantId:int}/dish")]
     [ApiController]
     public class DishController : ControllerBase
     {
@@ -20,7 +21,7 @@ namespace RestaurantAPI.Controllers
         {
             var newDishId = await _dishRepository.CreateDishAsync(restaurantId, dishDto);
 
-            return Created($"api/restaurant/{restaurantId}/dish/{newDishId}", null);
+            return Created($"api/restaurant/{restaurantId}/dish/{newDishId}", "Created!");
         }
 
         [HttpGet("{dishId:int}")]
@@ -28,6 +29,32 @@ namespace RestaurantAPI.Controllers
         {
             var dish = await _dishRepository.GetDishFromRestaurantByIdAsync(restaurantId, dishId);
             return Ok(dish);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<DishDto>>> GetAllDishes([FromRoute] int restaurantId)
+        {
+            var dishes = await _dishRepository.GetAllDishFromRestaurantAsync(restaurantId);
+            if (!dishes.Value.Any())
+            {
+                throw new NotFoundException("Dishes not found yet!");
+            }
+            return Ok(dishes.Value);
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult> DeleteAllDishesFromRestaurant([FromRoute] int restaurantId)
+        {
+            await _dishRepository.RemoveAllDishesFromRestaurantAsync(restaurantId);
+            return NoContent();
+        }
+
+        [HttpDelete("{dishId:int}")]
+        public async Task<ActionResult> DeleteDishFromRestaurantByDishId([FromRoute] int restaurantId,
+            [FromRoute] int dishId)
+        {
+            await _dishRepository.RemoveDishFromRestaurantByDishIdAsync(restaurantId, dishId);
+            return NoContent();
         }
     }
 }
