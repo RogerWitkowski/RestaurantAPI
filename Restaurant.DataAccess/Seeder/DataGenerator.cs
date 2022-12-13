@@ -18,18 +18,23 @@ namespace Restaurant.DataAccess.Seeder
             _dbContext = dbContext;
         }
 
-        public void SeedDb()
+        public async void SeedDb()
         {
             if (_dbContext.Database.CanConnect())
             {
+                if (!_dbContext.Roles.Any())
+                {
+                    await GetRoles();
+                }
+
                 if (!_dbContext.Restaurants.Any())
                 {
-                    GetRestaurants();
+                    await GetRestaurants();
                 }
             }
         }
 
-        private IEnumerable<Models.Models.Restaurant> GetRestaurants()
+        private async Task<IEnumerable<Models.Models.Restaurant>> GetRestaurants()
         {
             var addressGenerator = new Faker<Address>()
                 .RuleFor(a => a.Country, f => f.Address.Country())
@@ -53,10 +58,32 @@ namespace Restaurant.DataAccess.Seeder
                 .RuleFor(dishes => dishes.Dishes, fdishes => dishGenerator.Generate(50));
 
             var restaurants = restaurantGenerator.Generate(100);
-            _dbContext.Restaurants.AddRange(restaurants);
-            _dbContext.SaveChanges();
+            await _dbContext.Restaurants.AddRangeAsync(restaurants);
+            await _dbContext.SaveChangesAsync();
 
             return restaurants;
+        }
+
+        private async Task<IEnumerable<Role>> GetRoles()
+        {
+            var roles = new List<Role>()
+            {
+                new Role()
+                {
+                    RoleName = "User"
+                },
+                new Role()
+                {
+                    RoleName = "Manager"
+                },
+                new Role()
+                {
+                    RoleName = "Admin"
+                }
+            };
+            await _dbContext.Roles.AddRangeAsync(roles);
+            await _dbContext.SaveChangesAsync();
+            return roles;
         }
     }
 }
