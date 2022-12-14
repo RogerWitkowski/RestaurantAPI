@@ -6,6 +6,7 @@ using System.Text.Json.Serialization.Metadata;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ using Restaurant.DataAccess.Validators;
 using Restaurant.Models.Dto;
 using Restaurant.Models.Models;
 using RestaurantAPI;
+using RestaurantAPI.Authorization;
 using RestaurantAPI.Middleware;
 using RestaurantAPI.Repository;
 using RestaurantAPI.Repository.IRepository;
@@ -54,6 +56,12 @@ builder.Services.AddAuthentication(opt =>
     };
 });
 
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("HasNationality", configBuilder => configBuilder.RequireClaim("Nationality", "string", "polish"));
+    opt.AddPolicy("AtLeast20", confBuilder => confBuilder.AddRequirements(new MinimumAgeRequirement(20)));
+});
+
 //builder.Services.AddMvc(opt =>
 //{
 //    opt.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
@@ -74,6 +82,8 @@ builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
+builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
 
 var app = builder.Build();
 
@@ -101,11 +111,12 @@ app.UseSwaggerUI(opt =>
 
 app.UseRouting();
 
+app.UseAuthorization();
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
-//app.UseAuthorization();
 
 app.MapControllers();
 
