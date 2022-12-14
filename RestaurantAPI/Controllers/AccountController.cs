@@ -17,6 +17,7 @@ namespace RestaurantAPI.Controllers
         }
 
         [HttpPost("register")]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
         {
             var newUser = await _accountRepository.RegisterUserAsync(registerUserDto);

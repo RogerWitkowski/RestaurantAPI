@@ -1,13 +1,16 @@
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using NLog.Web;
 using Restaurant.DataAccess.DataAccess;
@@ -15,6 +18,7 @@ using Restaurant.DataAccess.Seeder;
 using Restaurant.DataAccess.Validators;
 using Restaurant.Models.Dto;
 using Restaurant.Models.Models;
+using RestaurantAPI;
 using RestaurantAPI.Middleware;
 using RestaurantAPI.Repository;
 using RestaurantAPI.Repository.IRepository;
@@ -28,10 +32,31 @@ builder.Host.UseNLog();
 builder.Services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DatabaseConnection")));
 
+var authenticationSettings = new AuthenticationSettings();
+builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+
+builder.Services.AddAuthentication(opt =>
+{
+    opt.DefaultAuthenticateScheme = "Bearer";
+    opt.DefaultScheme = "Bearer";
+    opt.DefaultChallengeScheme = "Bearer";
+}).AddJwtBearer(config =>
+{
+    config.RequireHttpsMetadata = false;
+    config.SaveToken = true;
+    config.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = authenticationSettings.JwtIssuer,
+        ValidAudience = authenticationSettings.JwtIssuer,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+    };
+});
+
 //builder.Services.AddMvc(opt =>
 //{
 //    opt.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 //});
+
 builder.Services.AddScoped<DataGenerator>();
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -62,6 +87,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestTimeMiddleware>();
+app.UseAuthentication();
 app.UseHttpsRedirection();
 
 app.UseSwagger();
