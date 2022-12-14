@@ -22,23 +22,25 @@ namespace RestaurantAPI.Repository
         private readonly IMapper _mapper;
         private readonly ILogger<RestaurantRepository> _logger;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextRepository _userContextRepository;
         private readonly IExtensionRepository _extensionRepository;
 
-        public RestaurantRepository(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantRepository> logger, IAuthorizationService authorizationService)
+        public RestaurantRepository(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantRepository> logger, IAuthorizationService authorizationService, IUserContextRepository userContextRepository)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
             _authorizationService = authorizationService;
+            _userContextRepository = userContextRepository;
             _extensionRepository = new ExtensionRepository(dbContext);
         }
 
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto, int userId)
+        public async Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto)
         {
             var restaurant = _mapper.Map<Restaurant.Models.Models.Restaurant>(createRestaurantDto);
 
-            restaurant.CreatedById = userId;
+            restaurant.CreatedById = _userContextRepository.GetUserId;
             await _dbContext.Restaurants.AddAsync(restaurant);
             await _dbContext.SaveChangesAsync();
 
@@ -46,12 +48,12 @@ namespace RestaurantAPI.Repository
         }
 
         [ValidateAntiForgeryToken]
-        public async Task DeleteRestaurantAsync(int restaurantId, ClaimsPrincipal user)
+        public async Task DeleteRestaurantAsync(int restaurantId)
         {
             _logger.LogError($"Restaurant with id: {restaurantId} DELETE action invoked");
             var restaurant = await _extensionRepository.GetRestaurantByIdAsync(restaurantId);
 
-            var authorizationResult = _authorizationService.AuthorizeAsync(user, restaurant,
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextRepository.User, restaurant,
                 new ResourceOperationRequirement(ResourceOperationStaticDetails.Delete)).Result;
             if (!authorizationResult.Succeeded)
             {
@@ -79,11 +81,11 @@ namespace RestaurantAPI.Repository
         }
 
         [ValidateAntiForgeryToken]
-        public async Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto, ClaimsPrincipal user)
+        public async Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto)
         {
             var restaurant = await _extensionRepository.GetRestaurantWithAddressByIdAsync(restaurantId);
 
-            var authorizationResult = await _authorizationService.AuthorizeAsync(user, restaurant,
+            var authorizationResult = await _authorizationService.AuthorizeAsync(_userContextRepository.User, restaurant,
                 new ResourceOperationRequirement(ResourceOperationStaticDetails.Update));
 
             if (!authorizationResult.Succeeded)

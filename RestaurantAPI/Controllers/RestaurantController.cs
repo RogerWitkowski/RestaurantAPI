@@ -45,8 +45,7 @@ namespace RestaurantAPI.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult> CreateRestaurant([FromBody] CreateRestaurantDto createRestaurantDto)
         {
-            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            var restaurant = await _restaurantRepository.CreateRestaurantAsync(createRestaurantDto, userId);
+            var restaurant = await _restaurantRepository.CreateRestaurantAsync(createRestaurantDto);
             return restaurant;
         }
 
@@ -54,7 +53,7 @@ namespace RestaurantAPI.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult> DeleteRestaurant([FromRoute] int restaurantId)
         {
-            await _restaurantRepository.DeleteRestaurantAsync(restaurantId, User);
+            await _restaurantRepository.DeleteRestaurantAsync(restaurantId);
             return Ok("Deleted!");
         }
 
@@ -62,7 +61,7 @@ namespace RestaurantAPI.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult> UpdateRestaurant([FromBody] UpdateRestaurantDto restaurantDto, [FromRoute] int restaurantId)
         {
-            await _restaurantRepository.UpdateRestaurantAsync(restaurantId, restaurantDto, User);
+            await _restaurantRepository.UpdateRestaurantAsync(restaurantId, restaurantDto);
 
             return Ok("Updated!");
         }

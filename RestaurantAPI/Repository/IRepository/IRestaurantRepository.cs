@@ -10,10 +10,10 @@ namespace RestaurantAPI.Repository.IRepository
 
         public Task<ActionResult<RestaurantDto>> GetByIdAsync(int restaurantId);
 
-        public Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto, int userId);
+        public Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto);
 
-        public Task DeleteRestaurantAsync(int restaurantId, ClaimsPrincipal user);
+        public Task DeleteRestaurantAsync(int restaurantId);
 
-        public Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto, ClaimsPrincipal user);
+        public Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto);
     }
 }
