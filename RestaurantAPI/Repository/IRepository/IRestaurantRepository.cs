@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Restaurant.Models.Dto;
+using System.Security.Claims;
 
 namespace RestaurantAPI.Repository.IRepository
 {
@@ -9,10 +10,10 @@ namespace RestaurantAPI.Repository.IRepository
 
         public Task<ActionResult<RestaurantDto>> GetByIdAsync(int restaurantId);
 
-        public Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto);
+        public Task<ActionResult> CreateRestaurantAsync(CreateRestaurantDto createRestaurantDto, int userId);
 
-        public Task DeleteRestaurantAsync(int restaurantId);
+        public Task DeleteRestaurantAsync(int restaurantId, ClaimsPrincipal user);
 
-        public Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto);
+        public Task UpdateRestaurantAsync(int restaurantId, UpdateRestaurantDto restaurantDto, ClaimsPrincipal user);
     }
 }

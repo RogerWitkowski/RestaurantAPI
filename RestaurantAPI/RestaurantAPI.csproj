@@ -32,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Restaurant.DataAccess\Restaurant.DataAccess.csproj" />
     <ProjectReference Include="..\Restaurant.Models\Restaurant.Models.csproj" />
+    <ProjectReference Include="..\Restaurant.Utility\Restaurant.Utility.csproj" />
   </ItemGroup>
 
 </Project>

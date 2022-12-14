@@ -47,8 +47,13 @@ namespace RestaurantAPI.Repository
                 new Claim(ClaimTypes.Name, $"{user.FirsttName} {user.LasttName}"),
                 new Claim(ClaimTypes.Role, $"{user.Role.RoleName}"),
                 new Claim("DateOfBirth", user.DateOfBirth.Value.ToString("dd-MM-yyyy")),
-                new Claim("Nationality", user.Nationality),
             };
+            if (!string.IsNullOrEmpty(user.Nationality))
+            {
+                claims.Add(
+                        new Claim("Nationality", user.Nationality)
+                    );
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
