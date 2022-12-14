@@ -16,6 +16,7 @@ namespace RestaurantAPI
 
             CreateMap<Dish, DishDto>().ReverseMap();
             CreateMap<CreateDishDto, Dish>().ReverseMap();
+            CreateMap<RegisterUserDto, User>().ReverseMap();
 
             CreateMap<CreateRestaurantDto, Restaurant.Models.Models.Restaurant>()
                 .ForMember(m => m.Address, c => c.MapFrom(dto => new Address()
