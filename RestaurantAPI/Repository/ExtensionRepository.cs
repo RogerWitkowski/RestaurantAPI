@@ -102,5 +102,19 @@ namespace RestaurantAPI.Repository
 
             return restaurant;
         }
+
+        public async Task<User> GetUserWithRoleFromDbByEmailLoginAsync(LoginDto loginDto)
+        {
+            var user = await _dbContext
+                .Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+            if (user is null)
+            {
+                throw new BadRequestException("Invalid username or password!");
+            }
+
+            return user;
+        }
     }
 }

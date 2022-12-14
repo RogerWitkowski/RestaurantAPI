@@ -17,5 +17,7 @@ namespace RestaurantAPI.Repository.IRepository
         public Task<Restaurant.Models.Models.Restaurant> GetRestaurantWithAddressAndDishesByIdAsync(int restaurantId);
 
         public Task<Restaurant.Models.Models.Restaurant> GetRestaurantWithAddressByIdAsync(int restaurantId);
+
+        public Task<User> GetUserWithRoleFromDbByEmailLoginAsync(LoginDto loginDto);
     }
 }
