@@ -21,7 +21,7 @@ namespace RestaurantAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "AtLeast20")]
+        [Authorize(Policy = "CreatedMinimum2Restaurant")]
         public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
         {
             var restaurants = await _restaurantRepository.GetAllAsync();

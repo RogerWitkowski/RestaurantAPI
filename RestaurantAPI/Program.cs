@@ -60,6 +60,7 @@ builder.Services.AddAuthorization(opt =>
 {
     opt.AddPolicy("HasNationality", configBuilder => configBuilder.RequireClaim("Nationality", "string", "polish"));
     opt.AddPolicy("AtLeast20", confBuilder => confBuilder.AddRequirements(new MinimumAgeRequirement(20)));
+    opt.AddPolicy("CreatedMinimum2Restaurant", confBuilder => confBuilder.AddRequirements(new CreatedMultipleRestaurantsRequirement(2)));
 });
 
 //builder.Services.AddMvc(opt =>
@@ -76,6 +77,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 builder.Services.AddScoped<IDishRepository, DishRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IUserContextRepository, UserContextRepository>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
@@ -84,7 +86,7 @@ builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
 builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
-builder.Services.AddScoped<IUserContextRepository, UserContextRepository>();
+builder.Services.AddScoped<IAuthorizationHandler, CreatedMultipleRestaurantsRequirementHandler>();
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
