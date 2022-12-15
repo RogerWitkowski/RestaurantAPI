@@ -10,6 +10,7 @@ namespace Restaurant.Models.Dto
 {
     public class RestaurantDto
     {
+        public int Id { get; set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
