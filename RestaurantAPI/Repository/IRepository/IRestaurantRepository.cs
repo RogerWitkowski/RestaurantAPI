@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Restaurant.Models.Dto;
+using Restaurant.Models.Models;
 using System.Security.Claims;
 
 namespace RestaurantAPI.Repository.IRepository
 {
     public interface IRestaurantRepository
     {
-        public Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync(string searchPhrase);
+        public Task<PagedResult<RestaurantDto>> GetAllRestaurantsPaged(RestaurantQuery restaurantQuery);
 
         public Task<ActionResult<RestaurantDto>> GetByIdAsync(int restaurantId);
 

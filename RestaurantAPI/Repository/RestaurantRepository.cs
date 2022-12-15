@@ -63,13 +63,37 @@ namespace RestaurantAPI.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync(string searchPhrase)
+        public async Task<PagedResult<RestaurantDto>> GetAllRestaurantsPaged(RestaurantQuery restaurantQuery)
         {
-            var restaurants = await _extensionRepository.GetAllRestaurantsAsync(searchPhrase);
+            var baseRestaurantQuery = await _dbContext
+                .Restaurants
+                .Include(a => a.Address)
+                //.Include(d => d.Dishes)
+                .Where(r => restaurantQuery.SearchPhrase == null ||
+                            (r.Name.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower())
+                             || r.Description.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower()))).ToListAsync();
 
-            var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants);
+            var restaurants = Task.FromResult(baseRestaurantQuery
+                .Skip(restaurantQuery.PageSize * (restaurantQuery.PageNumber - 1))
+                .Take(restaurantQuery.PageSize));
 
-            return restaurantsDto;
+            var totalItemsCount = baseRestaurantQuery.Count();
+            if (restaurants.Result is null)
+            {
+                throw new NotFoundException("Restaurant not found!");
+            }
+
+            var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants.Result);
+
+            var pagedResult =
+                new PagedResult<RestaurantDto>(restaurantsDto, totalItemsCount, restaurantQuery.PageSize, restaurantQuery.PageNumber);
+
+            if (!pagedResult.Items.Any())
+            {
+                throw new NotFoundException("Not Found");
+            }
+
+            return pagedResult;
         }
 
         [ValidateAntiForgeryToken]

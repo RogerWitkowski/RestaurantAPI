@@ -56,29 +56,6 @@ namespace RestaurantAPI.Repository
             return dish;
         }
 
-        public async Task<IEnumerable<Restaurant.Models.Models.Restaurant>> GetAllRestaurantsAsync(string searchPhrase)
-        {
-            var restaurants = await _dbContext
-                .Restaurants
-                .Include(a => a.Address)
-                .Include(d => d.Dishes)
-                .Where(r => searchPhrase == null || (r.Name.ToLower().Contains(searchPhrase.ToLower())
-                                                     || r.Description.ToLower().Contains(searchPhrase.ToLower())))
-                .ToListAsync();
-
-            if (restaurants is null)
-            {
-                throw new NotFoundException("Restaurant not found!");
-            }
-
-            if (searchPhrase is null)
-            {
-                return restaurants;
-            }
-
-            return restaurants;
-        }
-
         public async Task<Restaurant.Models.Models.Restaurant> GetRestaurantWithAddressAndDishesByIdAsync(int restaurantId)
         {
             var restaurant = await _dbContext

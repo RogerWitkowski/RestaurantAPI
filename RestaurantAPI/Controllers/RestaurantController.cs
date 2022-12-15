@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Restaurant.Models.Dto;
+using Restaurant.Models.Models;
 using RestaurantAPI.Repository.IRepository;
 
 namespace RestaurantAPI.Controllers
@@ -22,10 +23,11 @@ namespace RestaurantAPI.Controllers
 
         [HttpGet]
         //[Authorize(Policy = "CreatedMinimum2Restaurant")]
-        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll([FromQuery] string searchPhrase)
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll([FromQuery] RestaurantQuery restaurantQuery)
         {
-            var restaurants = await _restaurantRepository.GetAllAsync(searchPhrase);
-            return Ok(restaurants.Value);
+            var restaurants = await _restaurantRepository.GetAllRestaurantsPaged(restaurantQuery);
+            return Ok(restaurants);
         }
 
         [HttpGet("{id:int}")]

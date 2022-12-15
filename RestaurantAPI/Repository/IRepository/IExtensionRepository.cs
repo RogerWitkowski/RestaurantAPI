@@ -12,8 +12,6 @@ namespace RestaurantAPI.Repository.IRepository
 
         public Task<Dish> GetDishByIdFromRestaurantAsync(int restaurantId, int dishId);
 
-        public Task<IEnumerable<Restaurant.Models.Models.Restaurant>> GetAllRestaurantsAsync(string searchPhrase);
-
         public Task<Restaurant.Models.Models.Restaurant> GetRestaurantWithAddressAndDishesByIdAsync(int restaurantId);
 
         public Task<Restaurant.Models.Models.Restaurant> GetRestaurantWithAddressByIdAsync(int restaurantId);
