@@ -63,9 +63,9 @@ namespace RestaurantAPI.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAllAsync(string searchPhrase)
         {
-            var restaurants = await _extensionRepository.GetAllRestaurantsAsync();
+            var restaurants = await _extensionRepository.GetAllRestaurantsAsync(searchPhrase);
 
             var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants);
 

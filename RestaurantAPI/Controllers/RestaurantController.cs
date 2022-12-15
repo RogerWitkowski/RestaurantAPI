@@ -21,10 +21,10 @@ namespace RestaurantAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "CreatedMinimum2Restaurant")]
-        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
+        //[Authorize(Policy = "CreatedMinimum2Restaurant")]
+        public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll([FromQuery] string searchPhrase)
         {
-            var restaurants = await _restaurantRepository.GetAllAsync();
+            var restaurants = await _restaurantRepository.GetAllAsync(searchPhrase);
             return Ok(restaurants.Value);
         }
 
