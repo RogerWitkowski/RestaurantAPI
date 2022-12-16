@@ -6,10 +6,10 @@ using RestaurantAPI.Exceptions;
 namespace RestaurantAPI.Controllers
 {
     [Route("file")]
-    [Authorize]
     public class FileController : ControllerBase
     {
         [HttpGet]
+        [ResponseCache(Duration = 1200, VaryByQueryKeys = new[] { "fileName" })]
         public async Task<ActionResult> GetFile([FromQuery] string fileName)
         {
             var rootPath = await Task.FromResult(Directory.GetCurrentDirectory());
