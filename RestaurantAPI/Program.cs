@@ -38,6 +38,7 @@ var authenticationSettings = new AuthenticationSettings();
 builder.Services.AddSingleton(authenticationSettings);
 
 builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+var allowedOrigin = builder.Configuration.GetSection("AllowedOrigins").ToString();
 
 builder.Services.AddAuthentication(opt =>
 {
@@ -89,9 +90,19 @@ builder.Services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>(
 builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, CreatedMultipleRestaurantsRequirementHandler>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendClient", builder =>
+    builder.AllowAnyMethod()
+    .AllowAnyHeader()
+    .WithOrigins(allowedOrigin)
+    );
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors("FrontendClient");
 
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetService<DataGenerator>();
