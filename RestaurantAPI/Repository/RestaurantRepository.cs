@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using Restaurant.DataAccess.DataAccess;
 using Restaurant.Models.Dto;
 using Restaurant.Models.Models;
 using Restaurant.Utility;
+using Restaurant.Utility.StaticDetails;
 using RestaurantAPI.Authorization;
 using RestaurantAPI.Exceptions;
 using RestaurantAPI.Repository.IRepository;
@@ -65,25 +67,43 @@ namespace RestaurantAPI.Repository
 
         public async Task<PagedResult<RestaurantDto>> GetAllRestaurantsPaged(RestaurantQuery restaurantQuery)
         {
-            var baseRestaurantQuery = await _dbContext
+            var baseRestaurantQuery = await Task.Run(_dbContext
                 .Restaurants
                 .Include(a => a.Address)
                 //.Include(d => d.Dishes)
                 .Where(r => restaurantQuery.SearchPhrase == null ||
                             (r.Name.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower())
-                             || r.Description.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower()))).ToListAsync();
+                             || r.Description.ToLower().Contains(restaurantQuery.SearchPhrase.ToLower()))).AsQueryable);
 
-            var restaurants = Task.FromResult(baseRestaurantQuery
+            if (!string.IsNullOrEmpty(restaurantQuery.SortBy))
+            {
+                var columnsSelector = new Dictionary<string, Expression<Func<Restaurant.Models.Models.Restaurant, object>>>
+                {
+                    { nameof(Restaurant.Models.Models.Restaurant.Name), r => r.Name },
+                    { nameof(Restaurant.Models.Models.Restaurant.Description), r => r.Description },
+                    { nameof(Restaurant.Models.Models.Restaurant.Category), r => r.Category },
+                    { nameof(Restaurant.Models.Models.Restaurant.Address.City), r => r.Address.City}
+                };
+
+                var selectedColumn = columnsSelector[restaurantQuery.SortBy];
+
+                baseRestaurantQuery = restaurantQuery.SortDirection == SortDirectionStaticDetails.Asc
+                    ? baseRestaurantQuery.OrderBy(selectedColumn)
+                    : baseRestaurantQuery.OrderByDescending(selectedColumn);
+            }
+
+            var restaurants = await baseRestaurantQuery
                 .Skip(restaurantQuery.PageSize * (restaurantQuery.PageNumber - 1))
-                .Take(restaurantQuery.PageSize));
+                .Take(restaurantQuery.PageSize)
+                .ToListAsync();
 
             var totalItemsCount = baseRestaurantQuery.Count();
-            if (restaurants.Result is null)
+            if (restaurants is null)
             {
                 throw new NotFoundException("Restaurant not found!");
             }
 
-            var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants.Result);
+            var restaurantsDto = _mapper.Map<List<RestaurantDto>>(restaurants);
 
             var pagedResult =
                 new PagedResult<RestaurantDto>(restaurantsDto, totalItemsCount, restaurantQuery.PageSize, restaurantQuery.PageNumber);

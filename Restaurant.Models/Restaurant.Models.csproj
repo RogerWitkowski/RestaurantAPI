@@ -26,4 +26,8 @@
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Restaurant.Utility\Restaurant.Utility.csproj" />
+  </ItemGroup>
+
 </Project>

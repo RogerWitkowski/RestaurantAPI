@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Restaurant.Utility;
+using Restaurant.Utility.StaticDetails;
 
 namespace RestaurantAPI.Authorization
 {
