@@ -102,6 +102,8 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+app.UseStaticFiles();
 app.UseCors("FrontendClient");
 
 var scope = app.Services.CreateScope();
